@@ -1,6 +1,7 @@
 import json
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from entries import get_all_entries
+from entries import get_single_entry
 # from moods import get_all_moods
 
 class HandleRequests(BaseHTTPRequestHandler):
@@ -22,11 +23,11 @@ class HandleRequests(BaseHTTPRequestHandler):
                         'X-Requested-With, Content-Type, Accept')
         self.end_headers()
 
-    #this is how we isolate the animal ID NUMBER FROM THE URL aka self.path 
+    #this is how we isolate the entrie ID NUMBER FROM THE URL aka self.path 
     def parse_url(self, path):
         # Just like splitting a string in JavaScript. If the
-        # path is "/animals/1", the resulting list will
-        # have "" at index 0, "animals" at index 1, and "1"
+        # path is "/entries/1", the resulting list will
+        # have "" at index 0, "entries" at index 1, and "1"
         # at index 2.
         path_params = path.split("/")
         resource = path_params[1]
@@ -37,9 +38,9 @@ class HandleRequests(BaseHTTPRequestHandler):
             # This is the new parseInt()
             id = int(path_params[2])
         except IndexError:
-            pass  # No route parameter exists: /animals
+            pass  # No route parameter exists: /entries
         except ValueError:
-            pass  # Request had trailing slash: /animals/
+            pass  # Request had trailing slash: /entries/
         return (resource, id)  # This is a tuple
 
     # Here's a method on the class that overrides
@@ -50,13 +51,13 @@ class HandleRequests(BaseHTTPRequestHandler):
         response = {} #default response
         (resource, id) = self.parse_url(self.path)
         # It's if..else statements to check for various paths
-        # First we check if it's animals
+        # First we check if it's entries
         if resource == "entries":
             if id is not None:
-                response = f"{'this is where get_single_entry(id) would go'}"
+                response = f"{get_single_entry(id)}"
             else:
                 response = f"{get_all_entries()}"
-        # #Then we check if it"s locations
+        # #Then we check if it"s moods
         # elif resource == "moods":
         #     if id is not None:
         #         response = f"{get_single_mood(id)}"
