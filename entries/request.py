@@ -34,6 +34,36 @@ def get_all_entries():
     # Use `json` package to properly serialize list as JSON
     return json.dumps(entries)
 
+def get_entries_by_search(value):
+    with sqlite3.connect("./dailyjournal.db") as conn:
+        conn.row_factory = sqlite3.Row
+        db_cursor = conn.cursor()
+        db_cursor.execute("""
+        SELECT
+            e.id,
+            e.concept,
+            e.date,
+            e.entry text,
+            e.mood_id
+        FROM Entry e
+        WHERE text LIKE ? 
+        """, ( value, ))
+        # Initialize an empty list to hold all entry representations
+        entries = []
+        # Convert rows of data into a Python list
+        dataset = db_cursor.fetchall()
+        # Iterate list of data returned from database
+        for row in dataset:
+            # Create an entry instance from the current row.
+            # Note that the database fields are specified in
+            # exact order of the parameters defined in the
+            # entry class above.
+            entry = Entry(row['id'], row['concept'], row['date'],
+                        row['text'], row['mood_id'])
+            entries.append(entry.__dict__)
+    # Use `json` package to properly serialize list as JSON
+    return json.dumps(entries)
+
 def get_single_entry(id):
     with sqlite3.connect("./dailyjournal.db") as conn:
         conn.row_factory = sqlite3.Row
@@ -56,6 +86,7 @@ def get_single_entry(id):
         entry = Entry(data['id'], data['concept'], data['date'],
                         data['entry'], data['mood_id'])
         return json.dumps(entry.__dict__)
+
 
 def delete_entry(id):
     with sqlite3.connect("./dailyjournal.db") as conn:
